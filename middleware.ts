@@ -1,55 +1,76 @@
-import { createServerClient } from "@supabase/ssr"
-import { type NextRequest, NextResponse } from "next/server"
+import createMiddleware from "next-intl/middleware";
+import { NextRequest, NextResponse } from "next/server";
+import { createServerClient } from "@supabase/ssr";
 
-import type { Database } from "@/lib/supabase/types"
+const locales = ["en", "es", "id"];
+const defaultLocale = "en";
+
+const intlMiddleware = createMiddleware({
+  locales,
+  defaultLocale,
+  localePrefix: "as-needed",
+});
 
 export async function middleware(request: NextRequest) {
-  const response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  })
+  const pathname = request.nextUrl.pathname;
 
-  const supabase = createServerClient<Database>(
+  // Apply i18n middleware first
+  const intlResponse = intlMiddleware(request);
+
+  // Get locale from pathname or use default
+  let locale = defaultLocale;
+  for (const loc of locales) {
+    if (pathname.startsWith(`/${loc}/`) || pathname === `/${loc}`) {
+      locale = loc;
+      break;
+    }
+  }
+
+  // Get path without locale prefix
+  let pathWithoutLocale = pathname;
+  if (pathname.startsWith(`/${locale}/`)) {
+    pathWithoutLocale = pathname.slice(`/${locale}`.length) || "/";
+  }
+
+  // Check auth for protected routes
+  const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
         getAll() {
-          return request.cookies.getAll()
+          return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            response.cookies.set(name, value, options)
-          })
+          cookiesToSet.forEach(({ name, value, options }) =>
+            intlResponse.cookies.set(name, value, options),
+          );
         },
       },
-    }
-  )
+    },
+  );
 
   const {
     data: { user },
-  } = await supabase.auth.getUser()
+  } = await supabase.auth.getUser();
 
-  const pathname = request.nextUrl.pathname
-  const isAuthRoute = pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up")
-  const isDashboardRoute = pathname.startsWith("/dashboard")
-
-  if (!user && isDashboardRoute) {
-    const url = request.nextUrl.clone()
-    url.pathname = "/sign-in"
-    return NextResponse.redirect(url)
+  // Redirect authenticated users away from auth pages
+  if (user && pathWithoutLocale.startsWith("/sign-")) {
+    const redirectUrl =
+      locale === defaultLocale ? "/dashboard" : `/${locale}/dashboard`;
+    return NextResponse.redirect(new URL(redirectUrl, request.url));
   }
 
-  if (user && isAuthRoute) {
-    const url = request.nextUrl.clone()
-    url.pathname = "/dashboard"
-    return NextResponse.redirect(url)
+  // Redirect unauthenticated users trying to access dashboard
+  if (!user && pathWithoutLocale.startsWith("/dashboard")) {
+    const redirectUrl =
+      locale === defaultLocale ? "/sign-in" : `/${locale}/sign-in`;
+    return NextResponse.redirect(new URL(redirectUrl, request.url));
   }
 
-  return response
+  return intlResponse;
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/sign-in", "/sign-up"],
-}
+  matcher: ["/((?!_next|.*\\..*|api|auth).*)"],
+};

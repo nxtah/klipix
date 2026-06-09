@@ -60,7 +60,7 @@ export function StatusSelect({ value, onChange }: StatusSelectProps) {
       <select
         value={value}
         onChange={handleNativeSelectChange}
-        className="md:hidden flex h-10 w-full rounded-lg border-2 border-solid border-gray-800 bg-white px-3 py-2 text-sm shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        className="md:hidden flex h-10 w-full rounded-lg border-2 border-solid border-border bg-card text-foreground px-3 py-2 text-sm shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {STATUSES.map((status) => (
           <option key={status.value} value={status.value}>
@@ -74,7 +74,7 @@ export function StatusSelect({ value, onChange }: StatusSelectProps) {
         <button
           type="button"
           onClick={handleTriggerClick}
-          className="flex h-10 w-full items-center justify-between rounded-lg border-2 border-solid border-gray-800 bg-white px-3 py-2 text-sm shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-shadow"
+          className="flex h-10 w-full items-center justify-between rounded-lg border-2 border-solid border-border bg-card text-foreground px-3 py-2 text-sm shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] dark:hover:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.2)] active:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] dark:active:shadow-[1px_1px_0px_0px_rgba(255,255,255,0.2)] transition-shadow"
         >
           <span className="truncate">{currentLabel}</span>
           <ChevronDown
@@ -86,7 +86,7 @@ export function StatusSelect({ value, onChange }: StatusSelectProps) {
         </button>
 
         {isOpen && (
-          <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-white border-2 border-solid border-gray-800 rounded-lg shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+          <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-card border-2 border-solid border-border rounded-lg shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.2)]">
             <div className="space-y-1 p-2">
               {STATUSES.map((status) => (
                 <button
@@ -100,7 +100,7 @@ export function StatusSelect({ value, onChange }: StatusSelectProps) {
                   className={`w-full text-left px-2 py-1.5 rounded text-sm font-medium transition-colors ${
                     value === status.value
                       ? "bg-primary text-white"
-                      : "hover:bg-yellow-50"
+                      : "hover:bg-muted"
                   }`}
                 >
                   {status.label}
