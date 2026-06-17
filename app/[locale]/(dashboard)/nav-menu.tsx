@@ -35,6 +35,7 @@ export function NavMenu({
   const [closing, setClosing] = useState(false)
   const panelRef = useRef<HTMLDivElement | null>(null)
   const menuRef = useRef<HTMLDivElement | null>(null)
+  const scrollPosRef = useRef(0)
 
   const initials = useMemo(() => getInitials(name), [name])
 
@@ -60,27 +61,26 @@ export function NavMenu({
   }, [])
 
   useEffect(() => {
-    const preventScroll = (e: TouchEvent) => e.preventDefault()
-
     if (open) {
-      const scrollY = window.scrollY
+      scrollPosRef.current = window.scrollY
       document.documentElement.style.overflow = "hidden"
       document.body.style.overflow = "hidden"
       document.body.style.position = "fixed"
-      document.body.style.top = `-${scrollY}px`
+      document.body.style.top = `-${scrollPosRef.current}px`
       document.body.style.left = "0"
       document.body.style.right = "0"
-      document.addEventListener("touchmove", preventScroll, { passive: false })
     } else {
-      const scrollY = parseInt(document.body.style.top || "0") * -1
+      const prevScrollY = scrollPosRef.current
       document.documentElement.style.overflow = ""
       document.body.style.overflow = ""
       document.body.style.position = ""
       document.body.style.top = ""
       document.body.style.left = ""
       document.body.style.right = ""
-      document.removeEventListener("touchmove", preventScroll)
-      if (scrollY) window.scrollTo(0, scrollY)
+      if (prevScrollY) {
+        window.scrollTo(0, prevScrollY)
+        scrollPosRef.current = 0
+      }
     }
     return () => {
       document.documentElement.style.overflow = ""
@@ -89,14 +89,8 @@ export function NavMenu({
       document.body.style.top = ""
       document.body.style.left = ""
       document.body.style.right = ""
-      document.removeEventListener("touchmove", preventScroll)
     }
   }, [open])
-
-  useEffect(() => {
-    if (open || closing) return
-    setProfileOpen(false)
-  }, [pathname, open, closing])
 
   return (
     <>
@@ -163,19 +157,20 @@ export function NavMenu({
               {MENU_ITEMS.map((item) => {
                 const isActive = pathname === item.href
 
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`rounded-xl px-4 py-2.5 text-sm font-semibold transition-all hover:bg-accent/10 active:scale-95 ${
-                      isActive
-                        ? "bg-primary/70 text-foreground shadow-neo-xs"
-                        : "text-foreground/80"
-                    }`}
-                  >
-                    {item.label}
-                  </Link>
-                )
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={handleClose}
+                      className={`rounded-xl px-4 py-2.5 text-sm font-semibold transition-all hover:bg-accent/10 active:scale-95 ${
+                        isActive
+                          ? "bg-primary/70 text-foreground shadow-neo-xs"
+                          : "text-foreground/80"
+                      }`}
+                    >
+                      {item.label}
+                    </Link>
+                  )
               })}
             </nav>
 
