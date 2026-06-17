@@ -68,13 +68,12 @@ function ProjectCard({
   project: Project
 }) {
   const router = useRouter()
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useDraggable({
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: project.id,
   })
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
     opacity: isDragging ? 0.6 : 1,
   }
 
