@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { GoogleIcon } from "@/components/ui/google-icon";
-import { Link } from "@/lib/i18n-navigation";
 
 import { type AuthActionState, signUp } from "../actions";
 
@@ -71,10 +70,10 @@ export function SignUpForm() {
       </div>
 
       <Button variant="outline" size="lg" className="w-full gap-3" asChild>
-        <Link href="/auth/google">
+        <a href="/auth/google">
           <GoogleIcon />
           {t("continueWithGoogle")}
-        </Link>
+        </a>
       </Button>
     </div>
   );
