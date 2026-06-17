@@ -40,22 +40,21 @@ export default async function DashboardLayout({
     <div className="landing-bg flex min-h-screen flex-col">
       <div className="landing-dots" />
       <header className="relative z-50 border-b-2 border-border bg-card/80 backdrop-blur-sm">
-        <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-5 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap items-center gap-4">
-            <Link href="/" className="flex shrink-0 items-center gap-3">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo.png" alt="Klipix" className="h-16 w-16 object-contain" />
-              <div className="min-w-0">
-                <p className="text-xl font-heading font-semibold leading-none">Klipix</p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Hi {displayName} 👋
-                </p>
-              </div>
-            </Link>
-            <NavMenu name={displayName} avatarUrl={avatarUrl} />
-            <div className="ml-auto flex items-center gap-2">
-              <ThemeToggle />
+        <div className="mx-auto flex w-full max-w-7xl items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
+          <Link href="/" className="flex shrink-0 items-center gap-2 md:gap-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.png" alt="Klipix" className="h-10 w-10 md:h-16 md:w-16 object-contain" />
+            <div className="min-w-0">
+              <p className="text-base md:text-xl font-heading font-semibold leading-none">Klipix</p>
+              <p className="hidden md:mt-1 md:block text-sm text-muted-foreground">
+                Hi {displayName} 👋
+              </p>
             </div>
+          </Link>
+
+          <div className="flex items-center gap-2 ml-auto">
+            <NavMenu name={displayName} avatarUrl={avatarUrl} />
+            <ThemeToggle />
           </div>
         </div>
       </header>

@@ -4,6 +4,7 @@ import { useActionState, useState } from "react"
 import { Sparkles, Plus, ChevronDown, ChevronUp } from "lucide-react"
 
 import { FormMessage } from "@/components/forms/form-message"
+import { AiLoadingOverlay } from "@/components/ui/ai-loading-overlay"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 
@@ -73,7 +74,8 @@ export function AiSceneGenerator({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="relative space-y-4">
+      {isPending && <AiLoadingOverlay message="Generating scenes..." />}
       <form action={handleGenerate} className="space-y-4">
         <input type="hidden" name="title" value={projectTitle} />
         <input type="hidden" name="description" value={projectDescription ?? ""} />

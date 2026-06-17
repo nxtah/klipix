@@ -49,16 +49,7 @@ export function ThemeToggle() {
       variant="ghost"
       size="icon"
       className="rounded-full"
-      onMouseDown={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setTheme(theme === "dark" ? "light" : "dark");
-      }}
-      onTouchStart={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setTheme(theme === "dark" ? "light" : "dark");
-      }}
+      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
       type="button"
     >
       {theme === "dark" ? (

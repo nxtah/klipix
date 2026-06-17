@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { AiLoadingOverlay } from "@/components/ui/ai-loading-overlay"
 
 import {
   type AiActionState,
@@ -42,6 +43,15 @@ export function AiIdeaGenerator() {
   const [addedIdeas, setAddedIdeas] = useState<Set<number>>(new Set())
   const [allAdded, setAllAdded] = useState(false)
   const [isPending, startTransition] = useTransition()
+  const [isGenerating, setIsGenerating] = useState(false)
+
+  const handleGenerate = async (formData: FormData) => {
+    setIsGenerating(true)
+    setAddedIdeas(new Set())
+    setAllAdded(false)
+    await formAction(formData)
+    setIsGenerating(false)
+  }
 
   const handleAddSingle = async (content: string, index: number) => {
     const result = await addAiIdea(content)
@@ -61,6 +71,8 @@ export function AiIdeaGenerator() {
     })
   }
 
+  const isLoading = isGenerating || isPending
+
   return (
     <Card className="overflow-hidden border-accent/40">
       <CardHeader className="space-y-4">
@@ -76,8 +88,9 @@ export function AiIdeaGenerator() {
           </CardDescription>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <form action={formAction} className="space-y-4">
+      <CardContent className="relative space-y-4">
+        {isLoading && <AiLoadingOverlay message="Generating ideas..." />}
+        <form action={handleGenerate} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="ai-topic">What&apos;s your topic?</Label>
             <Input
@@ -136,10 +149,10 @@ export function AiIdeaGenerator() {
           <Button
             size="lg"
             type="submit"
-            disabled={isPending}
+            disabled={isLoading}
             className="w-full sm:w-auto"
           >
-            {isPending ? (
+            {isLoading ? (
               <span className="ai-btn-loading flex items-center gap-1.5 rounded-[inherit] px-2 py-0.5">
                 <Sparkles className="ai-wiggle h-4 w-4" />
                 <span className="ai-dot inline-block size-1.5 rounded-full bg-current" />
@@ -169,7 +182,7 @@ export function AiIdeaGenerator() {
                 size="sm"
                 variant="outline"
                 onClick={handleAddAll}
-                disabled={allAdded || isPending}
+                disabled={allAdded || isLoading}
                 className="min-h-10"
               >
                 {allAdded ? (
@@ -198,7 +211,7 @@ export function AiIdeaGenerator() {
                   size="sm"
                   variant={addedIdeas.has(i) ? "outline" : "default"}
                   onClick={() => handleAddSingle(idea, i)}
-                  disabled={addedIdeas.has(i) || isPending}
+                  disabled={addedIdeas.has(i) || isLoading}
                   className="shrink-0 min-h-9"
                 >
                   {addedIdeas.has(i) ? (
