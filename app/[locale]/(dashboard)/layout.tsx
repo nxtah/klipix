@@ -39,7 +39,7 @@ export default async function DashboardLayout({
   return (
     <div className="landing-bg flex min-h-screen flex-col">
       <div className="landing-dots" />
-      <header className="relative z-50 border-b-2 border-border bg-card/80 backdrop-blur-sm">
+      <header className="sticky top-0 z-50 border-b-2 border-border bg-card/80 backdrop-blur-sm">
         <div className="mx-auto flex w-full max-w-7xl items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
           <Link href="/" className="flex shrink-0 items-center gap-2 md:gap-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
