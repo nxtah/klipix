@@ -153,11 +153,11 @@ export function AiIdeaGenerator() {
             className="w-full sm:w-auto"
           >
             {isLoading ? (
-              <span className="ai-btn-loading flex items-center gap-1.5 rounded-[inherit] px-2 py-0.5">
-                <Sparkles className="ai-wiggle h-4 w-4" />
+              <span className="flex items-center gap-2">
                 <span className="ai-dot inline-block size-1.5 rounded-full bg-current" />
                 <span className="ai-dot inline-block size-1.5 rounded-full bg-current" />
                 <span className="ai-dot inline-block size-1.5 rounded-full bg-current" />
+                wait a minute
               </span>
             ) : (
               <>

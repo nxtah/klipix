@@ -31,10 +31,22 @@ export function NavMenu({
 }) {
   const pathname = usePathname()
   const [profileOpen, setProfileOpen] = useState(false)
-  const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const [open, setOpen] = useState(false)
+  const [closing, setClosing] = useState(false)
+  const panelRef = useRef<HTMLDivElement | null>(null)
   const menuRef = useRef<HTMLDivElement | null>(null)
 
   const initials = useMemo(() => getInitials(name), [name])
+
+  const handleOpen = () => setOpen(true)
+
+  const handleClose = () => {
+    setClosing(true)
+    setTimeout(() => {
+      setOpen(false)
+      setClosing(false)
+    }, 250)
+  }
 
   useEffect(() => {
     const handlePointerDown = (event: PointerEvent) => {
@@ -48,9 +60,20 @@ export function NavMenu({
   }, [])
 
   useEffect(() => {
-    setMobileNavOpen(false)
+    if (open) {
+      document.body.style.overflow = "hidden"
+    } else {
+      document.body.style.overflow = ""
+    }
+    return () => {
+      document.body.style.overflow = ""
+    }
+  }, [open])
+
+  useEffect(() => {
+    if (open || closing) return
     setProfileOpen(false)
-  }, [pathname])
+  }, [pathname, open, closing])
 
   return (
     <>
@@ -79,26 +102,34 @@ export function NavMenu({
       <button
         type="button"
         className="md:hidden inline-flex size-10 items-center justify-center rounded-full border-2 border-border bg-card shadow-neo-xs"
-        onClick={() => setMobileNavOpen(true)}
+        onClick={handleOpen}
         aria-label="Open menu"
       >
         <Menu className="h-5 w-5" />
       </button>
 
       {/* Mobile nav dropdown */}
-      {mobileNavOpen && (
+      {open ? (
         <div className="fixed left-0 right-0 top-0 z-[100] md:hidden">
           <div
-            className="fixed inset-0 bg-black/20"
-            onClick={() => setMobileNavOpen(false)}
+            className={`fixed inset-0 ${closing ? "animate-out fade-out duration-200" : "animate-in fade-in duration-200"}`}
+            style={{ backgroundColor: "rgba(0,0,0,0.2)" }}
+            onClick={handleClose}
           />
-          <div className="relative mx-4 mt-[4.5rem] rounded-2xl border-2 border-border bg-card p-4 shadow-neo-lg animate-in slide-in-from-top-2 fade-in duration-200">
+          <div
+            ref={panelRef}
+            className={`relative mx-4 mt-[4.5rem] rounded-2xl border-2 border-border bg-card p-4 shadow-neo-lg ${
+              closing
+                ? "animate-out slide-out-to-top-3 fade-out duration-200"
+                : "animate-in slide-in-from-top-3 fade-in duration-300"
+            }`}
+          >
             <div className="flex items-center justify-between mb-4">
               <span className="text-base font-heading font-semibold">Menu</span>
               <button
                 type="button"
                 className="inline-flex size-7 items-center justify-center rounded-full border-2 border-border"
-                onClick={() => setMobileNavOpen(false)}
+                onClick={handleClose}
                 aria-label="Close menu"
               >
                 <X className="h-3.5 w-3.5" />
@@ -129,7 +160,7 @@ export function NavMenu({
               <div className="flex items-center gap-3 mb-3">
                 <span className="inline-flex size-9 items-center justify-center overflow-hidden rounded-full border-2 border-border bg-muted">
                   {avatarUrl ? (
-                    // eslint-disable-next-line @next/next-no-img-element
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img src={avatarUrl} alt={name} className="size-full object-cover" />
                   ) : (
                     <span className="text-xs font-bold">{initials || "C"}</span>
@@ -153,7 +184,7 @@ export function NavMenu({
             </div>
           </div>
         </div>
-      )}
+      ) : null}
 
       {/* Profile dropdown (desktop only) */}
       <div className="relative shrink-0 hidden md:block" ref={menuRef}>
