@@ -65,30 +65,13 @@ export function NavMenu({
       scrollPosRef.current = window.scrollY
       document.documentElement.style.overflow = "hidden"
       document.body.style.overflow = "hidden"
-      document.body.style.position = "fixed"
-      document.body.style.top = `-${scrollPosRef.current}px`
-      document.body.style.left = "0"
-      document.body.style.right = "0"
     } else {
-      const prevScrollY = scrollPosRef.current
       document.documentElement.style.overflow = ""
       document.body.style.overflow = ""
-      document.body.style.position = ""
-      document.body.style.top = ""
-      document.body.style.left = ""
-      document.body.style.right = ""
-      if (prevScrollY) {
-        window.scrollTo(0, prevScrollY)
-        scrollPosRef.current = 0
-      }
     }
     return () => {
       document.documentElement.style.overflow = ""
       document.body.style.overflow = ""
-      document.body.style.position = ""
-      document.body.style.top = ""
-      document.body.style.left = ""
-      document.body.style.right = ""
     }
   }, [open])
 
@@ -135,7 +118,7 @@ export function NavMenu({
           />
           <div
             ref={panelRef}
-            className={`relative mx-4 mt-[4.5rem] rounded-2xl border-2 border-border bg-card p-4 shadow-neo-lg ${
+            className={`relative mx-4 mt-[4.5rem] max-h-[calc(100dvh-6rem)] overflow-y-auto rounded-2xl border-2 border-border bg-card p-4 shadow-neo-lg ${
               closing
                 ? "animate-out slide-out-to-top-3 fade-out duration-200"
                 : "animate-in slide-in-from-top-3 fade-in duration-300"
