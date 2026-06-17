@@ -20,8 +20,10 @@ import {
   ChevronLeft,
   ChevronRight,
   CircleDashed,
+  Columns3,
   FolderKanban,
   GripVertical,
+  LayoutList,
   PlayCircle,
   Rocket,
 } from "lucide-react"
@@ -123,6 +125,30 @@ function ProjectCard({
   )
 }
 
+function ProjectListItem({ project }: { project: Project }) {
+  return (
+    <Link
+      href={`/dashboard/projects/${project.id}`}
+      className="rounded-2xl border-2 border-border bg-card px-5 py-4 shadow-neo-xs transition-all hover:-translate-y-0.5 hover:shadow-neo-sm"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold break-words">{project.title}</p>
+          {project.platforms && project.platforms.length > 0 && (
+            <p className="mt-1 text-xs text-muted-foreground">
+              {project.platforms.map((platform) => platform.replace(/_/g, " ")).join(", ")}
+            </p>
+          )}
+        </div>
+        <Badge className="bg-primary/70 shrink-0">{statusMeta[project.status].label}</Badge>
+      </div>
+      <p className="mt-3 text-xs text-muted-foreground">
+        {formatDeadline(project.deadline)}
+      </p>
+    </Link>
+  )
+}
+
 function StatusColumn({
   status,
   items,
@@ -179,6 +205,7 @@ function StatusColumn({
 export function ProjectsContent({ projects: initialProjects }: { projects: Project[] | null }) {
   const [filterDate, setFilterDate] = useState<string | null>(null)
   const [projects, setProjects] = useState<Project[]>(() => initialProjects ?? [])
+  const [view, setView] = useState<"list" | "pipeline">("list")
   const scrollRef = useRef<HTMLDivElement>(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(false)
@@ -349,11 +376,36 @@ export function ProjectsContent({ projects: initialProjects }: { projects: Proje
 
       <section className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h2 className="text-2xl font-heading font-semibold">Project pipeline</h2>
-            <p className="text-sm text-muted-foreground">
-              Drag a project card into another column to update its stage.
-            </p>
+          <div className="flex items-center gap-3">
+            <h2 className="text-2xl font-heading font-semibold">
+              {view === "list" ? "All projects" : "Project pipeline"}
+            </h2>
+            <div className="inline-flex items-center gap-1 rounded-full border-2 border-border bg-card p-1 shadow-neo-xs">
+              <button
+                type="button"
+                onClick={() => setView("list")}
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+                  view === "list"
+                    ? "bg-primary/70 text-foreground shadow-neo-xs"
+                    : "text-foreground/70 hover:text-foreground"
+                }`}
+              >
+                <LayoutList className="h-3.5 w-3.5" />
+                List
+              </button>
+              <button
+                type="button"
+                onClick={() => setView("pipeline")}
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+                  view === "pipeline"
+                    ? "bg-primary/70 text-foreground shadow-neo-xs"
+                    : "text-foreground/70 hover:text-foreground"
+                }`}
+              >
+                <Columns3 className="h-3.5 w-3.5" />
+                Pipeline
+              </button>
+            </div>
           </div>
           <Badge className="bg-primary/70">{filteredProjects.length} shown</Badge>
         </div>
@@ -382,40 +434,57 @@ export function ProjectsContent({ projects: initialProjects }: { projects: Proje
           </div>
         ) : null}
 
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <div className="relative">
-            {canScrollLeft && (
-              <button
-                type="button"
-                onClick={() => scrollTo("left")}
-                className="absolute -left-3 top-1/2 z-10 -translate-y-1/2 inline-flex size-10 items-center justify-center rounded-full border-2 border-border bg-card shadow-neo-sm transition-all hover:bg-primary/20 hover:scale-110 active:scale-95 cursor-pointer"
-                aria-label="Scroll left"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
+        {view === "list" ? (
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {filteredProjects.length > 0 ? (
+              filteredProjects.map((project) => (
+                <ProjectListItem key={project.id} project={project} />
+              ))
+            ) : (
+              <div className="col-span-full rounded-2xl border-2 border-dashed border-border bg-background px-4 py-12 text-center">
+                <p className="text-sm font-semibold">No projects yet.</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Create your first project to get started.
+                </p>
+              </div>
             )}
-            {canScrollRight && (
-              <button
-                type="button"
-                onClick={() => scrollTo("right")}
-                className="absolute -right-3 top-1/2 z-10 -translate-y-1/2 inline-flex size-10 items-center justify-center rounded-full border-2 border-border bg-card shadow-neo-sm transition-all hover:bg-primary/20 hover:scale-110 active:scale-95 cursor-pointer"
-                aria-label="Scroll right"
-              >
-                <ChevronRight className="h-5 w-5" />
-              </button>
-            )}
-            <div
-              ref={scrollRef}
-              className="flex gap-4 overflow-x-auto pb-2 pipeline-scroll"
-            >
-              {groupedProjects.map(({ status, items }) => (
-                <div key={status} className="w-[18rem] min-w-[18rem] flex-shrink-0">
-                  <StatusColumn status={status} items={items} />
-                </div>
-              ))}
-            </div>
           </div>
-        </DndContext>
+        ) : (
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <div className="relative">
+              {canScrollLeft && (
+                <button
+                  type="button"
+                  onClick={() => scrollTo("left")}
+                  className="absolute -left-3 top-1/2 z-10 -translate-y-1/2 inline-flex size-10 items-center justify-center rounded-full border-2 border-border bg-card shadow-neo-sm transition-all hover:bg-primary/20 hover:scale-110 active:scale-95 cursor-pointer"
+                  aria-label="Scroll left"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
+              )}
+              {canScrollRight && (
+                <button
+                  type="button"
+                  onClick={() => scrollTo("right")}
+                  className="absolute -right-3 top-1/2 z-10 -translate-y-1/2 inline-flex size-10 items-center justify-center rounded-full border-2 border-border bg-card shadow-neo-sm transition-all hover:bg-primary/20 hover:scale-110 active:scale-95 cursor-pointer"
+                  aria-label="Scroll right"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </button>
+              )}
+              <div
+                ref={scrollRef}
+                className="flex gap-4 overflow-x-auto pb-2 pipeline-scroll"
+              >
+                {groupedProjects.map(({ status, items }) => (
+                  <div key={status} className="w-[18rem] min-w-[18rem] flex-shrink-0">
+                    <StatusColumn status={status} items={items} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </DndContext>
+        )}
       </section>
     </div>
   )
