@@ -103,7 +103,9 @@ export default function Home() {
               {t("landing.subtitle")}
             </span>
             <h1 className="text-4xl font-heading font-semibold leading-tight sm:text-5xl lg:text-6xl">
-              {t("landing.headline")} <span className="inline-flex rounded-2xl border-2 border-border bg-primary px-2 py-1 shadow-neo-xs">{t("landing.headlineBold")}</span> {t("landing.headline").split("without")[1]}
+              {t("landing.headline").split(t("landing.headlineBold"))[0]}
+              <span className="inline-flex rounded-2xl border-2 border-border bg-primary px-2 py-1 shadow-neo-xs">{t("landing.headlineBold")}</span>
+              {t("landing.headline").split(t("landing.headlineBold"))[1]}
             </h1>
             <p className="max-w-xl text-lg text-muted-foreground">
               {t("landing.description")}
