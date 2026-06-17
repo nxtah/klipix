@@ -60,13 +60,36 @@ export function NavMenu({
   }, [])
 
   useEffect(() => {
+    const preventScroll = (e: TouchEvent) => e.preventDefault()
+
     if (open) {
+      const scrollY = window.scrollY
+      document.documentElement.style.overflow = "hidden"
       document.body.style.overflow = "hidden"
+      document.body.style.position = "fixed"
+      document.body.style.top = `-${scrollY}px`
+      document.body.style.left = "0"
+      document.body.style.right = "0"
+      document.addEventListener("touchmove", preventScroll, { passive: false })
     } else {
+      const scrollY = parseInt(document.body.style.top || "0") * -1
+      document.documentElement.style.overflow = ""
       document.body.style.overflow = ""
+      document.body.style.position = ""
+      document.body.style.top = ""
+      document.body.style.left = ""
+      document.body.style.right = ""
+      document.removeEventListener("touchmove", preventScroll)
+      if (scrollY) window.scrollTo(0, scrollY)
     }
     return () => {
+      document.documentElement.style.overflow = ""
       document.body.style.overflow = ""
+      document.body.style.position = ""
+      document.body.style.top = ""
+      document.body.style.left = ""
+      document.body.style.right = ""
+      document.removeEventListener("touchmove", preventScroll)
     }
   }, [open])
 
