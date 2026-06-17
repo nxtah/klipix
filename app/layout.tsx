@@ -21,7 +21,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Klipix",
   description: "Playful content management for short-form video creators.",
-  icons: [{ rel: "icon", url: "/logo.png" }],
 };
 
 export default async function RootLayout({
@@ -36,6 +35,7 @@ export default async function RootLayout({
       className={`${outfit.variable} ${bricolage.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
+        <link rel="icon" href="/logo.png" sizes="any" />
         <Script
           id="theme-script"
           strategy="beforeInteractive"
