@@ -61,6 +61,31 @@ export default async function DashboardLayout({
       <main className="relative z-10 mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         {children}
       </main>
+      <footer className="relative z-10 mx-auto mt-auto w-full max-w-7xl border-t-2 border-border px-4 py-6 sm:px-6 lg:px-8">
+        <div className="flex flex-col items-center justify-between gap-3 text-center sm:flex-row sm:text-left">
+          <p className="text-sm text-muted-foreground">
+            &copy; {new Date().getFullYear()} Natah-Genesis
+          </p>
+          <div className="flex items-center gap-4">
+            <a
+              href="https://www.instagram.com/ykzirnathaniel/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+            >
+              @ykzirnathaniel
+            </a>
+            <a
+              href="https://www.linkedin.com/in/rizky-nathaniel-lukas/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+            >
+              LinkedIn
+            </a>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }
