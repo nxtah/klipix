@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { ChevronDown, LogOut, Menu, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -35,7 +35,6 @@ export function NavMenu({
   const [closing, setClosing] = useState(false)
   const panelRef = useRef<HTMLDivElement | null>(null)
   const menuRef = useRef<HTMLDivElement | null>(null)
-  const scrollPosRef = useRef(0)
 
   const initials = useMemo(() => getInitials(name), [name])
 
@@ -60,20 +59,26 @@ export function NavMenu({
     return () => document.removeEventListener("pointerdown", handlePointerDown)
   }, [])
 
+  const preventScroll = useCallback((e: Event) => {
+    e.preventDefault()
+  }, [])
+
   useEffect(() => {
     if (open) {
-      scrollPosRef.current = window.scrollY
-      document.documentElement.style.overflow = "hidden"
       document.body.style.overflow = "hidden"
+      window.addEventListener("wheel", preventScroll, { passive: false })
+      window.addEventListener("touchmove", preventScroll, { passive: false })
     } else {
-      document.documentElement.style.overflow = ""
       document.body.style.overflow = ""
+      window.removeEventListener("wheel", preventScroll)
+      window.removeEventListener("touchmove", preventScroll)
     }
     return () => {
-      document.documentElement.style.overflow = ""
       document.body.style.overflow = ""
+      window.removeEventListener("wheel", preventScroll)
+      window.removeEventListener("touchmove", preventScroll)
     }
-  }, [open])
+  }, [open, preventScroll])
 
   return (
     <>
@@ -98,68 +103,63 @@ export function NavMenu({
         })}
       </nav>
 
-      {/* Mobile hamburger */}
+      {/* Mobile hamburger / close */}
       <button
         type="button"
-        className="md:hidden inline-flex size-10 items-center justify-center rounded-full border-2 border-border bg-card shadow-neo-xs"
-        onClick={handleOpen}
-        aria-label="Open menu"
+        className="md:hidden inline-flex size-10 items-center justify-center rounded-full border-2 border-border bg-card shadow-neo-xs active:scale-90 transition-transform"
+        onClick={open ? handleClose : handleOpen}
+        aria-label={open ? "Close menu" : "Open menu"}
       >
-        <Menu className="h-5 w-5" />
+        {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
       </button>
 
       {/* Mobile nav dropdown */}
       {open ? (
-        <div className="fixed left-0 right-0 top-0 z-[100] md:hidden">
+        <div className="fixed inset-0 z-[100] md:hidden">
           <div
-            className={`fixed inset-0 ${closing ? "animate-out fade-out duration-200" : "animate-in fade-in duration-200"}`}
-            style={{ backgroundColor: "rgba(0,0,0,0.2)" }}
+            className={`fixed inset-0 backdrop-blur-sm ${
+              closing ? "animate-out fade-out duration-200" : "animate-in fade-in duration-200"
+            }`}
+            style={{ backgroundColor: "rgba(0,0,0,0.25)" }}
             onClick={handleClose}
           />
           <div
             ref={panelRef}
-            className={`relative mx-4 mt-[4.5rem] max-h-[calc(100dvh-6rem)] overflow-y-auto rounded-2xl border-2 border-border bg-card p-4 shadow-neo-lg ${
+            className={`fixed left-4 right-4 top-[4.5rem] max-h-[calc(100dvh-6rem)] overflow-y-auto rounded-2xl border-2 border-border bg-card p-5 shadow-neo-lg ${
               closing
                 ? "animate-out slide-out-to-top-3 fade-out duration-200"
                 : "animate-in slide-in-from-top-3 fade-in duration-300"
             }`}
           >
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-base font-heading font-semibold">Menu</span>
-              <button
-                type="button"
-                className="inline-flex size-7 items-center justify-center rounded-full border-2 border-border"
-                onClick={handleClose}
-                aria-label="Close menu"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            </div>
-
-            <nav className="flex flex-col gap-1.5">
+            <nav className="flex flex-col gap-1">
               {MENU_ITEMS.map((item) => {
                 const isActive = pathname === item.href
 
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={handleClose}
-                      className={`rounded-xl px-4 py-2.5 text-sm font-semibold transition-all hover:bg-accent/10 active:scale-95 ${
-                        isActive
-                          ? "bg-primary/70 text-foreground shadow-neo-xs"
-                          : "text-foreground/80"
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={handleClose}
+                    className={`relative flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all active:scale-[0.97] ${
+                      isActive
+                        ? "bg-primary/15 text-foreground"
+                        : "text-foreground/70 hover:bg-accent/10 hover:text-foreground"
+                    }`}
+                  >
+                    <span
+                      className={`h-1.5 w-1.5 rounded-full transition-all ${
+                        isActive ? "bg-primary scale-100" : "scale-0"
                       }`}
-                    >
-                      {item.label}
-                    </Link>
-                  )
+                    />
+                    {item.label}
+                  </Link>
+                )
               })}
             </nav>
 
-            <div className="mt-4 border-t-2 border-border pt-4">
-              <div className="flex items-center gap-3 mb-3">
-                <span className="inline-flex size-9 items-center justify-center overflow-hidden rounded-full border-2 border-border bg-muted">
+            <div className="mt-5 border-t-2 border-border pt-4">
+              <div className="flex items-center gap-3">
+                <span className="inline-flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-border bg-muted">
                   {avatarUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={avatarUrl} alt={name} className="size-full object-cover" />
@@ -167,12 +167,12 @@ export function NavMenu({
                     <span className="text-xs font-bold">{initials || "C"}</span>
                   )}
                 </span>
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold truncate">{name}</p>
-                  <p className="text-xs text-muted-foreground">Signed in profile</p>
+                  <p className="text-xs text-muted-foreground">Signed in</p>
                 </div>
               </div>
-              <form action={signOut}>
+              <form action={signOut} className="mt-3">
                 <Button
                   type="submit"
                   variant="outline"
