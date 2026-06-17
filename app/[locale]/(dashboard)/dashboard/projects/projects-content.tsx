@@ -125,11 +125,28 @@ function ProjectCard({
   )
 }
 
-function ProjectListItem({ project }: { project: Project }) {
+function ProjectListItem({
+  project,
+  onShip,
+}: {
+  project: Project
+  onShip: (projectId: string) => void
+}) {
+  const router = useRouter()
+  const isPosted = project.status === "posted"
+
   return (
-    <Link
-      href={`/dashboard/projects/${project.id}`}
-      className="rounded-2xl border-2 border-border bg-card px-5 py-4 shadow-neo-xs transition-all hover:-translate-y-0.5 hover:shadow-neo-sm"
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => router.push(`/dashboard/projects/${project.id}`)}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault()
+          router.push(`/dashboard/projects/${project.id}`)
+        }
+      }}
+      className="relative cursor-pointer rounded-2xl border-2 border-border bg-card px-5 py-4 shadow-neo-xs transition-all hover:-translate-y-0.5 hover:shadow-neo-sm group"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
@@ -142,10 +159,25 @@ function ProjectListItem({ project }: { project: Project }) {
         </div>
         <Badge className="bg-primary/70 shrink-0">{statusMeta[project.status].label}</Badge>
       </div>
-      <p className="mt-3 text-xs text-muted-foreground">
-        {formatDeadline(project.deadline)}
-      </p>
-    </Link>
+      <div className="mt-3 flex items-center justify-between">
+        <p className="text-xs text-muted-foreground">
+          {formatDeadline(project.deadline)}
+        </p>
+        {!isPosted && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              onShip(project.id)
+            }}
+            className="inline-flex items-center gap-1 rounded-full border-2 border-border bg-card px-2.5 py-1 text-xs font-semibold opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all hover:bg-primary/20 active:scale-90"
+          >
+            <Rocket className="h-3 w-3" />
+            Ship
+          </button>
+        )}
+      </div>
+    </div>
   )
 }
 
@@ -314,6 +346,28 @@ export function ProjectsContent({ projects: initialProjects }: { projects: Proje
     }
   }
 
+  const quickShip = async (projectId: string) => {
+    const targetStatus: ProjectStatus = "posted"
+    const current = projects.find((project) => project.id === projectId)
+    if (!current || current.status === targetStatus) return
+
+    const snapshot = projects
+    setProjects(projects.map((project) =>
+      project.id === projectId ? { ...project, status: targetStatus } : project,
+    ))
+
+    const formData = new FormData()
+    formData.set("project_id", projectId)
+    formData.set("status", targetStatus)
+
+    const result = await moveProjectStatus(formData)
+
+    if (result.status === "error") {
+      setProjects(snapshot)
+      toast.error(result.message ?? "Could not ship the project.")
+    }
+  }
+
   return (
     <div className="space-y-8">
       <section className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
@@ -438,7 +492,7 @@ export function ProjectsContent({ projects: initialProjects }: { projects: Proje
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {filteredProjects.length > 0 ? (
               filteredProjects.map((project) => (
-                <ProjectListItem key={project.id} project={project} />
+                <ProjectListItem key={project.id} project={project} onShip={quickShip} />
               ))
             ) : (
               <div className="col-span-full rounded-2xl border-2 border-dashed border-border bg-background px-4 py-12 text-center">
