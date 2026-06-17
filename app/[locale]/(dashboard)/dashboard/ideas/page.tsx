@@ -11,6 +11,7 @@ import { getSupabaseServerClient } from "@/lib/supabase/server"
 
 import { deleteIdea, promoteIdea } from "./actions"
 import { IdeaForm } from "./idea-form"
+import { AiIdeaGenerator } from "../ai/ai-idea-generator"
 
 function formatAge(date: string) {
   return formatDistanceToNow(new Date(date), { addSuffix: true })
@@ -221,6 +222,10 @@ export default async function IdeasPage() {
             )}
           </CardContent>
         </Card>
+      </section>
+
+      <section>
+        <AiIdeaGenerator />
       </section>
     </div>
   )

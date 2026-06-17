@@ -1,7 +1,6 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { getLocale } from "next-intl/server";
 
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { signInSchema, signUpSchema } from "@/lib/validators";
@@ -43,8 +42,7 @@ export async function signIn(
     return errorState(error.message);
   }
 
-  const locale = await getLocale();
-  redirect(`/${locale}/dashboard`);
+  redirect("/dashboard");
 }
 
 export async function signUp(
@@ -82,13 +80,11 @@ export async function signUp(
     return successState("Check your email to confirm your account.");
   }
 
-  const locale = await getLocale();
-  redirect(`/${locale}/dashboard`);
+  redirect("/dashboard");
 }
 
 export async function signOut() {
   const supabase = await getSupabaseServerClient();
   await supabase.auth.signOut();
-  const locale = await getLocale();
-  redirect(`/${locale}/sign-in`);
+  redirect("/sign-in");
 }

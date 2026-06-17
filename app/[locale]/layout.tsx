@@ -5,16 +5,13 @@ import { Toaster } from "@/components/ui/sonner";
 
 export default async function LocaleLayout({
   children,
-  params,
 }: {
   children: React.ReactNode;
-  params: Promise<{ locale: string }>;
 }) {
-  const { locale } = await params;
   const messages = await getMessages();
 
   return (
-    <NextIntlClientProvider locale={locale} messages={messages}>
+    <NextIntlClientProvider locale="en" messages={messages}>
       <ThemeProvider>
         {children}
         <Toaster position="top-right" richColors />

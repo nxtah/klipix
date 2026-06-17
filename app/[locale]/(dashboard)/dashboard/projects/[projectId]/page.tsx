@@ -21,6 +21,7 @@ import type { Database } from "@/lib/supabase/types"
 import { ProjectMetaForm } from "./project-meta-form"
 import { SceneScriptWrapper } from "./scene-script-wrapper"
 import { SortableSceneList } from "./scene-list-draggable"
+import { ProjectSceneAi } from "./project-scene-ai"
 
 const statusLabel: Record<string, string> = {
   idea: "Idea",
@@ -204,6 +205,30 @@ export default async function ProjectDetailPage({
           </CardHeader>
           <CardContent>
             <SceneScriptWrapper projectId={project.id} scriptContent={script?.content ?? null} />
+          </CardContent>
+        </Card>
+      </section>
+
+      <section className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-2xl font-heading font-semibold">AI Assistant</h2>
+            <p className="text-sm text-muted-foreground">
+              Generate scenes with scripts in one click.
+            </p>
+          </div>
+          <span className="neo-pill bg-accent/20">
+            <Sparkles className="h-4 w-4 text-accent" />
+            Powered by AI
+          </span>
+        </div>
+        <Card className="overflow-hidden border-accent/40">
+          <CardContent className="pt-6">
+            <ProjectSceneAi
+              projectId={project.id}
+              projectTitle={project.title}
+              projectDescription={project.description}
+            />
           </CardContent>
         </Card>
       </section>

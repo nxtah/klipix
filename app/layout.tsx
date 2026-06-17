@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import { Bricolage_Grotesque, Geist_Mono, Outfit } from "next/font/google";
-import { getLocale } from "next-intl/server";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -22,6 +21,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Klipix",
   description: "Playful content management for short-form video creators.",
+  icons: [{ rel: "icon", url: "/logo.png" }],
 };
 
 export default async function RootLayout({
@@ -29,11 +29,9 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const locale = await getLocale();
-
   return (
     <html
-      lang={locale}
+      lang="en"
       suppressHydrationWarning
       className={`${outfit.variable} ${bricolage.variable} ${geistMono.variable} h-full antialiased`}
     >

@@ -2,13 +2,10 @@ import createMiddleware from "next-intl/middleware";
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
-const locales = ["en", "es", "id"];
-const defaultLocale = "en";
-
 const intlMiddleware = createMiddleware({
-  locales,
-  defaultLocale,
-  localePrefix: "as-needed",
+  locales: ["en"],
+  defaultLocale: "en",
+  localePrefix: "never",
 });
 
 export async function middleware(request: NextRequest) {
@@ -16,21 +13,6 @@ export async function middleware(request: NextRequest) {
 
   // Apply i18n middleware first
   const intlResponse = intlMiddleware(request);
-
-  // Get locale from pathname or use default
-  let locale = defaultLocale;
-  for (const loc of locales) {
-    if (pathname.startsWith(`/${loc}/`) || pathname === `/${loc}`) {
-      locale = loc;
-      break;
-    }
-  }
-
-  // Get path without locale prefix
-  let pathWithoutLocale = pathname;
-  if (pathname.startsWith(`/${locale}/`)) {
-    pathWithoutLocale = pathname.slice(`/${locale}`.length) || "/";
-  }
 
   // Check auth for protected routes
   const supabase = createServerClient(
@@ -55,17 +37,13 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // Redirect authenticated users away from auth pages
-  if (user && pathWithoutLocale.startsWith("/sign-")) {
-    const redirectUrl =
-      locale === defaultLocale ? "/dashboard" : `/${locale}/dashboard`;
-    return NextResponse.redirect(new URL(redirectUrl, request.url));
+  if (user && pathname.startsWith("/sign-")) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   // Redirect unauthenticated users trying to access dashboard
-  if (!user && pathWithoutLocale.startsWith("/dashboard")) {
-    const redirectUrl =
-      locale === defaultLocale ? "/sign-in" : `/${locale}/sign-in`;
-    return NextResponse.redirect(new URL(redirectUrl, request.url));
+  if (!user && pathname.startsWith("/dashboard")) {
+    return NextResponse.redirect(new URL("/sign-in", request.url));
   }
 
   return intlResponse;

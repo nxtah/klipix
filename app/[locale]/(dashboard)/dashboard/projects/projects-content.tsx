@@ -1,7 +1,7 @@
 "use client"
 
 import type { ComponentType } from "react"
-import { useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { formatDistanceToNow } from "date-fns"
 import {
   DndContext,
@@ -17,6 +17,8 @@ import {
 import { CSS } from "@dnd-kit/utilities"
 import {
   CalendarDays,
+  ChevronLeft,
+  ChevronRight,
   CircleDashed,
   FolderKanban,
   GripVertical,
@@ -178,6 +180,9 @@ function StatusColumn({
 export function ProjectsContent({ projects: initialProjects }: { projects: Project[] | null }) {
   const [filterDate, setFilterDate] = useState<string | null>(null)
   const [projects, setProjects] = useState<Project[]>(() => initialProjects ?? [])
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(false)
 
   const filteredProjects = useMemo(() => {
     return projects.filter((project) => {
@@ -190,6 +195,32 @@ export function ProjectsContent({ projects: initialProjects }: { projects: Proje
       return projectDate === selectedDate
     })
   }, [projects, filterDate])
+
+  const checkScroll = useCallback(() => {
+    const el = scrollRef.current
+    if (!el) return
+    setCanScrollLeft(el.scrollLeft > 2)
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 2)
+  }, [])
+
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    checkScroll()
+    el.addEventListener("scroll", checkScroll, { passive: true })
+    window.addEventListener("resize", checkScroll)
+    return () => {
+      el.removeEventListener("scroll", checkScroll)
+      window.removeEventListener("resize", checkScroll)
+    }
+  }, [checkScroll, filteredProjects])
+
+  const scrollTo = useCallback((direction: "left" | "right") => {
+    const el = scrollRef.current
+    if (!el) return
+    const amount = el.clientWidth * 0.6
+    el.scrollBy({ left: direction === "left" ? -amount : amount, behavior: "smooth" })
+  }, [])
 
   const groupedProjects = useMemo(
     () =>
@@ -353,12 +384,37 @@ export function ProjectsContent({ projects: initialProjects }: { projects: Proje
         ) : null}
 
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <div className="flex gap-4 overflow-x-auto pb-2">
-            {groupedProjects.map(({ status, items }) => (
-              <div key={status} className="w-[18rem] min-w-[18rem] flex-shrink-0">
-                <StatusColumn status={status} items={items} />
-              </div>
-            ))}
+          <div className="relative">
+            {canScrollLeft && (
+              <button
+                type="button"
+                onClick={() => scrollTo("left")}
+                className="absolute -left-3 top-1/2 z-10 -translate-y-1/2 inline-flex size-10 items-center justify-center rounded-full border-2 border-border bg-card shadow-neo-sm transition-all hover:bg-primary/20 hover:scale-110 active:scale-95 cursor-pointer"
+                aria-label="Scroll left"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+            )}
+            {canScrollRight && (
+              <button
+                type="button"
+                onClick={() => scrollTo("right")}
+                className="absolute -right-3 top-1/2 z-10 -translate-y-1/2 inline-flex size-10 items-center justify-center rounded-full border-2 border-border bg-card shadow-neo-sm transition-all hover:bg-primary/20 hover:scale-110 active:scale-95 cursor-pointer"
+                aria-label="Scroll right"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            )}
+            <div
+              ref={scrollRef}
+              className="flex gap-4 overflow-x-auto pb-2 pipeline-scroll"
+            >
+              {groupedProjects.map(({ status, items }) => (
+                <div key={status} className="w-[18rem] min-w-[18rem] flex-shrink-0">
+                  <StatusColumn status={status} items={items} />
+                </div>
+              ))}
+            </div>
           </div>
         </DndContext>
       </section>

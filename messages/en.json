@@ -52,6 +52,8 @@
     "btnStart": "Start now",
     "coreFeatures": "Core Features",
     "coreDesc": "Everything you need to manage your content pipeline",
+    "aiIdeaGenerator": "AI Idea Generator",
+    "aiIdeaDesc": "Get AI-powered content ideas for any topic, platform, and tone.",
     "ideaInbox": "Idea Inbox",
     "ideaDesc": "Capture sparks fast and turn them into structured projects. Never lose a creative moment again.",
     "scriptScene": "Script to Scene",

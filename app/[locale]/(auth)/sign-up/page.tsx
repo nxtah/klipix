@@ -1,7 +1,6 @@
 "use client"
 
 import { useTranslations } from "next-intl"
-import { useLocale } from "next-intl"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Doodle } from "@/components/ui/doodle"
@@ -11,7 +10,6 @@ import { SignUpForm } from "./sign-up-form"
 
 export default function SignUpPage() {
   const t = useTranslations("auth")
-  const locale = useLocale()
 
   return (
     <Card className="w-full max-w-md">
@@ -28,7 +26,7 @@ export default function SignUpPage() {
         <SignUpForm />
         <p className="text-sm text-muted-foreground">
           {t("signUp.haveAccount")}{" "}
-          <Link className="font-semibold text-foreground underline-offset-4 hover:underline" href={`/${locale}/sign-in`}>
+          <Link className="font-semibold text-foreground underline-offset-4 hover:underline" href="/sign-in">
             {t("signUp.signIn")}
           </Link>
           .
