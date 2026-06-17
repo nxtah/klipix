@@ -85,27 +85,27 @@ export function NavMenu({
         <Menu className="h-5 w-5" />
       </button>
 
-      {/* Mobile nav overlay */}
+      {/* Mobile nav dropdown */}
       {mobileNavOpen && (
-        <div className="fixed inset-0 z-[100] md:hidden">
+        <div className="fixed left-0 right-0 top-0 z-[100] md:hidden">
           <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/20"
             onClick={() => setMobileNavOpen(false)}
           />
-          <div className="absolute right-0 top-0 flex h-full w-72 max-w-[80vw] flex-col border-l-2 border-border bg-card p-6 shadow-neo-lg">
-            <div className="flex items-center justify-between mb-8">
-              <span className="text-lg font-heading font-semibold">Menu</span>
+          <div className="relative mx-4 mt-[4.5rem] rounded-2xl border-2 border-border bg-card p-4 shadow-neo-lg animate-in slide-in-from-top-2 fade-in duration-200">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-base font-heading font-semibold">Menu</span>
               <button
                 type="button"
-                className="inline-flex size-8 items-center justify-center rounded-full border-2 border-border"
+                className="inline-flex size-7 items-center justify-center rounded-full border-2 border-border"
                 onClick={() => setMobileNavOpen(false)}
                 aria-label="Close menu"
               >
-                <X className="h-4 w-4" />
+                <X className="h-3.5 w-3.5" />
               </button>
             </div>
 
-            <nav className="flex flex-col gap-2">
+            <nav className="flex flex-col gap-1.5">
               {MENU_ITEMS.map((item) => {
                 const isActive = pathname === item.href
 
@@ -113,7 +113,7 @@ export function NavMenu({
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`rounded-2xl px-4 py-3 text-sm font-semibold transition-all hover:bg-accent/10 active:scale-95 ${
+                    className={`rounded-xl px-4 py-2.5 text-sm font-semibold transition-all hover:bg-accent/10 active:scale-95 ${
                       isActive
                         ? "bg-primary/70 text-foreground shadow-neo-xs"
                         : "text-foreground/80"
@@ -125,11 +125,11 @@ export function NavMenu({
               })}
             </nav>
 
-            <div className="mt-auto border-t-2 border-border pt-4">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="inline-flex size-10 items-center justify-center overflow-hidden rounded-full border-2 border-border bg-muted">
+            <div className="mt-4 border-t-2 border-border pt-4">
+              <div className="flex items-center gap-3 mb-3">
+                <span className="inline-flex size-9 items-center justify-center overflow-hidden rounded-full border-2 border-border bg-muted">
                   {avatarUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
+                    // eslint-disable-next-line @next/next-no-img-element
                     <img src={avatarUrl} alt={name} className="size-full object-cover" />
                   ) : (
                     <span className="text-xs font-bold">{initials || "C"}</span>
